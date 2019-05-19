@@ -441,6 +441,7 @@ public class Client extends Configured implements Tool {
     vargs.add(Environment.JAVA_HOME.$$() + "/bin/java");
     // Set Xmx based on am memory size
     vargs.add("-Xmx" + clientOpts.amMemory + "m");
+//    vargs.add("-agentlib:jdwp=transport=dt_socket,server=n,address=192.168.199.5:5005,suspend=y");
     // Set class name
     vargs.add(appMasterMainClass.getCanonicalName());
     // Set params for Application Master
