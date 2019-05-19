@@ -1,0 +1,73 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
+    }
+}
+
+plugins {
+    id 'java'
+}
+apply plugin: 'com.google.protobuf'
+
+protobuf { //protobuf生成的配置
+    protoc {
+        artifact = 'com.google.protobuf:protoc:2.5.0'
+    }
+
+}
+
+
+group 'io.github.shenbinglife.hadoop'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+allprojects {
+    repositories {
+        maven {
+            url 'http://maven.aliyun.com/nexus/content/groups/public/'
+        }
+        maven {
+            url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'
+        }
+    }
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir 'src/main/proto'
+            include '**/*.proto'
+        }
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compileOnly group:'org.apache.hadoop', name: 'hadoop-common', version:'2.7.2'
+    compileOnly group:'org.apache.hadoop', name: 'hadoop-hdfs', version:'2.7.2'
+    compileOnly group:'org.apache.hadoop', name: 'hadoop-yarn-client', version: '2.7.2'
+    compile 'com.google.protobuf:protobuf-java:2.5.0'
+    compile 'com.google.protobuf:protoc:2.5.0'
+    compile group: 'com.beust', name: 'jcommander', version: '1.72'
+
+
+}
+
+jar {
+    from {
+        //添加依懒到打包文件
+        //configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtime.collect{zipTree(it)}
+    }
+    manifest {
+        attributes 'Main-Class': "io.github.shenbinglife.hadoop.yarnapp.Client"
+    }
+}

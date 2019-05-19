@@ -1,0 +1,9 @@
+syntax = "proto2";
+option java_generic_services = true;
+option java_package = "io.github.shenbinglife.hadoop.yarnapp.rpc";
+option java_outer_classname = "ProtoSample";
+
+message Student {
+    required int32 id = 1;
+    optional string name = 2;
+}
