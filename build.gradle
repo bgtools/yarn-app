@@ -13,11 +13,12 @@ plugins {
 }
 apply plugin: 'com.google.protobuf'
 
-protobuf { //protobuf生成的配置
-    protoc {
-        artifact = 'com.google.protobuf:protoc:2.5.0'
+apply plugin: 'idea'
+idea {
+    module {
+        // Use "${protobuf.generatedFilesBaseDir}/main/javalite" for LITE_RUNTIME protos 
+        sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
     }
-
 }
 
 
@@ -28,6 +29,7 @@ sourceCompatibility = 1.8
 
 allprojects {
     repositories {
+//        mavenCentral()
         maven {
             url 'http://maven.aliyun.com/nexus/content/groups/public/'
         }
@@ -41,12 +43,23 @@ sourceSets {
     main {
         proto {
             srcDir 'src/main/proto'
-            include '**/*.proto'
         }
         java {
             srcDir 'src/main/java'
         }
     }
+}
+protobuf { //protobuf生成的配置
+    protoc {
+        artifact = 'com.google.protobuf:protoc:2.5.0'
+    }
+    generateProtoTasks {
+        // all() returns the collection of all protoc tasks
+        all().each { task ->
+            // Here you can configure the task
+        }
+    }
+
 }
 
 dependencies {

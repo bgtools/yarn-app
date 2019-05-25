@@ -1,9 +1,15 @@
 syntax = "proto2";
-option java_generic_services = true;
-option java_package = "io.github.shenbinglife.hadoop.yarnapp.rpc";
-option java_outer_classname = "ProtoSample";
 
-message Student {
-    required int32 id = 1;
-    optional string name = 2;
+package yarnapp;
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+option java_package = "io.github.shenbinglife.hadoop.yarnapp.rpc.proto.records";
+option java_outer_classname="AmProtocolProtos";
+
+message AmStateResponseProto {
+  required string state = 1;
+}
+
+message AmStateRequestProto {
+
 }

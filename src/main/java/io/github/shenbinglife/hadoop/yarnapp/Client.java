@@ -4,12 +4,15 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.github.shenbinglife.hadoop.yarnapp.am.ApplicationMaster;
+import io.github.shenbinglife.hadoop.yarnapp.rpc.AmProtocol;
+import io.github.shenbinglife.hadoop.yarnapp.rpc.records.AmStateResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -40,22 +43,27 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.ApplicationConstants.Environment;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
+import org.apache.hadoop.yarn.api.records.ApplicationAttemptReport;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
+import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
+import org.apache.hadoop.yarn.api.records.ContainerReport;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.YarnApplicationAttemptState;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.api.records.YarnClusterMetrics;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.ipc.YarnRPC;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 public class Client extends Configured implements Tool {
@@ -146,6 +154,27 @@ public class Client extends Configured implements Tool {
             + " ms for application. Killing application");
         break;
       }
+      List<ApplicationAttemptReport> attempts = yarnClient.getApplicationAttempts(appId);
+      for (ApplicationAttemptReport attempt : attempts) {
+        ApplicationAttemptReport attemptReport = yarnClient
+            .getApplicationAttemptReport(attempt.getApplicationAttemptId());
+        YarnApplicationAttemptState attemptState = attemptReport
+            .getYarnApplicationAttemptState();
+        if (attemptState == YarnApplicationAttemptState.RUNNING) {
+          ContainerId amContainerId = attemptReport.getAMContainerId();
+          ContainerReport amReport = yarnClient.getContainerReport(amContainerId);
+          String host = amReport.getAssignedNode().getHost();
+          InetSocketAddress inetSocketAddress = new InetSocketAddress(host,
+              DConstants.DEFAULT_AM_PROTOCOL_PORT);
+
+          AmProtocol amClient = (AmProtocol) YarnRPC.create(getConf())
+              .getProxy(AmProtocol.class, inetSocketAddress, getConf());
+          AmStateResponse amState = amClient.getAMState();
+          LOG.info("amClient getAMState:" + amState.getAMState());
+        }
+      }
+
+
     }
     return exitCode;
   }

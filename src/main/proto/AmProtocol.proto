@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package yarnapp;
+
+option java_package = "org.apache.hadoop.yarn.proto";
+option java_outer_classname = "AmProtocol";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+import "ProtocolRequest.proto";
+
+service AmProtocolService {
+  rpc getAMState (AmStateRequestProto) returns (AmStateResponseProto);
+}
+
