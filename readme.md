@@ -1,6 +1,6 @@
-#yarn-app
+# yarn-app
 
-基于HDFS Yarn开发的一个ApplicationMaster服务，基于该项目模版可以开发定制性的Yarn APP。  
+基于HDFS Yarn开发的一个ApplicationMaster应用，基于该项目模版可以开发定制性的Yarn APP。  
 参考：[Hadoop: Writing YARN Applications](https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/WritingYarnApplications.html)
 
 目前该项目已经实现的功能：
